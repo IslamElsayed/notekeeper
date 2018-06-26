@@ -1,10 +1,12 @@
 class NotesController < ApplicationController
-  before_action :set_note, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_user!
+  before_action :set_note, only: [:show, :edit, :update, :destroy, :share]
+  before_action ->{ authorize @note }, except: [:index, :new, :create]
 
   # GET /notes
   # GET /notes.json
   def index
-    @notes = Note.all
+    @notes = current_user.notes
   end
 
   # GET /notes/1
@@ -24,7 +26,7 @@ class NotesController < ApplicationController
   # POST /notes
   # POST /notes.json
   def create
-    @note = Note.new(note_params)
+    @note = Note.new(note_params.merge(creator: current_user))
 
     respond_to do |format|
       if @note.save
@@ -61,6 +63,30 @@ class NotesController < ApplicationController
     end
   end
 
+  def share
+    respond_to do |format|
+      if @note.share(note_share_params)
+        format.html { redirect_to @note, notice: 'Note was successfully shared.' }
+        format.json { render :show, status: :created, location: @note }
+      else
+        format.html { render :edit }
+        format.json { render json: @note.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def revoke
+    respond_to do |format|
+      if @note.revoke(params[:user_id])
+        format.html { redirect_to @note, notice: 'Note was successfully revoked.' }
+        format.json { render :show, status: :created, location: @note }
+      else
+        format.html { render :edit }
+        format.json { render json: @note.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_note
@@ -70,5 +96,9 @@ class NotesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def note_params
       params.require(:note).permit(:title, :body)
+    end
+
+    def note_share_params
+      params.permit(:user_id, :role)
     end
 end
