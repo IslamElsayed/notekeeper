@@ -11,6 +11,7 @@ class NotePolicy < ApplicationPolicy
   def edit?
     record.note_user_for(user)&.updater? || record.note_user_for(user)&.owner? || record.creator == user
   end
+  alias_method :update?, :edit?
 
   def destroy?
     record.note_user_for(user).owner? || record.creator == user
