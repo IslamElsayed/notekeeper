@@ -65,3 +65,4 @@ gem "webpacker", "~> 3.0"
 gem 'mini_racer', platforms: :ruby
 gem 'devise'
 gem "pundit"
+gem "js-routes"
