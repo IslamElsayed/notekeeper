@@ -7,3 +7,6 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 User.create(email: 'user@example.com', password: 123456, password_confirmation: 123456, name: 'name')
+['tag1', 'tag2', 'tag3', 'tag4'].each do |name|
+  Tag.create(name: 'name')
+end
