@@ -6,7 +6,7 @@ class NotesController < ApplicationController
   # GET /notes
   # GET /notes.json
   def index
-    @note_users = current_user.note_users.as_json(include: [:note])
+    @note_users = current_user.note_users.includes(:note).as_json(include: [:note])
   end
 
   # GET /notes/1
@@ -14,7 +14,7 @@ class NotesController < ApplicationController
   def show
     @roles = NoteUser.roles.except(:creator).keys
     @users = User.where.not(id: @note.user_ids)
-    @note_users = @note.note_users.as_json(include: [:user, :note])
+    @note_users = @note.note_users.includes(:user).as_json(include: [:user, :note])
   end
 
   # GET /notes/new
