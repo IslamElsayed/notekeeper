@@ -17,8 +17,8 @@ class Note < ApplicationRecord
     self.note_users.find_by(user: user)
   end
 
-  def share(args)
-    self.note_users.create(user_id: args[:user_id], role: args[:role])
+  def share(user, role)
+    self.note_users.create(user: user, role: role)
   end
 
   def revoke(user)
