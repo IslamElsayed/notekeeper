@@ -3,7 +3,8 @@ import React from 'react';
 
 export default class NoteForm extends React.Component {
   static propTypes = {
-    note: PropTypes.object.isRequired
+    note: PropTypes.object.isRequired,
+    users: PropTypes.array
   };
   /**
    * @param props - Comes from your rails view.
@@ -13,7 +14,14 @@ export default class NoteForm extends React.Component {
 
     // How to set initial state in ES6 class syntax
     // https://reactjs.org/docs/state-and-lifecycle.html#adding-local-state-to-a-class
-    this.state = { note: this.props.note };
+    this.state = { note: this.props.note, defaultUser: this.props.users[0] };
+  }
+
+  handleUserChange(e) {
+    let user = e.target.value
+    this.setState({
+     defaultUser: user
+    });
   }
 
   render() {
@@ -34,14 +42,14 @@ export default class NoteForm extends React.Component {
           { note.body }
         </p>
 
-        <p>
+        <div>
           <strong>Tags:</strong>
-          <br/>
-          { note.tags.map((tag) => {
-             <br/>
-             return tag.name + '('+ tag.notes_count+' notes)'
+          { note.tags.map((tag, index) => {
+             return <p key={index}>
+                      {tag.name + ' ('+ tag.notes_count+' notes)'}
+                    </p>
           })}
-        </p>
+        </div>
 
         <table>
           <thead>
@@ -57,7 +65,7 @@ export default class NoteForm extends React.Component {
               return <tr key={index}>
                        <td>{note_user.user.email}</td>
                        <td>{note_user.role}</td>
-                       <td>{note_user.role != 'creator' &&
+                       <td>{note_user.role != 'creator' && ['owner', 'creator'].includes(this.props.current_note_user.role) &&
                          <a href={Routes.revoke_note_user_path(note_user.note, note_user.user)} data-confirm="Are you sure?" rel="nofollow" data-method="delete">Remove</a>
                        }
                        </td>
@@ -67,8 +75,9 @@ export default class NoteForm extends React.Component {
         </table>
 
         { ['owner', 'creator'].includes(this.props.current_note_user.role) &&
-          <form action={Routes.invite_note_users_path(note)} acceptCharset="UTF-8" method="post"><input type="hidden" name={this.props.authenticity_token} />
-            <select name="user_id">
+          <form action={Routes.invite_note_user_path(note, this.state.defaultUser)} acceptCharset="UTF-8" method="post">
+            <input type="hidden" name="authenticity_token" value={this.props.authenticity_token} />
+            <select name="user_id" onChange={this.handleUserChange.bind(this)}>
               { this.props.users.map((user, index) => {
                 return <option value={user.id} key={index}>{ user.email }</option>
               })}
