@@ -1,10 +1,11 @@
 class UsersController < ApplicationController
   before_action :set_note
-  before_action :set_user, only: [:revoke]
+  before_action :set_user
+  before_action ->{ authorize @note }
 
   def invite
     respond_to do |format|
-      if @note.share(note_params)
+      if @note.share(@user, params[:role])
         format.html { redirect_to @note, notice: 'Note was successfully shared.' }
         format.json { render :show, status: :created, location: @note }
       else

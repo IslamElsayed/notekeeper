@@ -4,8 +4,6 @@ Rails.application.routes.draw do
     resources :users, only: [:index] do
       member do
         delete :revoke
-      end
-      collection do
         post :invite
       end
     end
